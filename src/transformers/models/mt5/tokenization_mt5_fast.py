@@ -12,8 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" Tokenization class for model T5."""
-
+""" Tokenization class for model mT5."""
+# Copied from ../t5/tokenization_t5_fast.py
 
 import os
 import re
@@ -26,9 +26,9 @@ from ...utils import is_sentencepiece_available, logging
 
 
 if is_sentencepiece_available():
-    from .tokenization_t5 import T5Tokenizer
+    from .tokenization_mt5 import mT5Tokenizer
 else:
-    T5Tokenizer = None
+    mT5Tokenizer = None
 
 
 logger = logging.get_logger(__name__)
@@ -37,35 +37,36 @@ VOCAB_FILES_NAMES = {"vocab_file": "spiece.model", "tokenizer_file": "tokenizer.
 
 PRETRAINED_VOCAB_FILES_MAP = {
     "vocab_file": {
-        "t5-small": "https://huggingface.co/t5-small/resolve/main/spiece.model",
-        "t5-base": "https://huggingface.co/t5-base/resolve/main/spiece.model",
-        "t5-large": "https://huggingface.co/t5-large/resolve/main/spiece.model",
-        "t5-3b": "https://huggingface.co/t5-3b/resolve/main/spiece.model",
-        "t5-11b": "https://huggingface.co/t5-11b/resolve/main/spiece.model",
+        "mt5-small": "https://huggingface.co/mt5-small/resolve/main/spiece.model",
+        "mt5-base": "https://huggingface.co/mt5-base/resolve/main/spiece.model",
+        "mt5-large": "https://huggingface.co/mt5-large/resolve/main/spiece.model",
+        "mt5-xl": "https://huggingface.co/mt5-xl/resolve/main/spiece.model",
+        "mt5-xxl": "https://huggingface.co/mt5-xxl/resolve/main/spiece.model",
     },
     "tokenizer_file": {
-        "t5-small": "https://huggingface.co/t5-small/resolve/main/tokenizer.json",
-        "t5-base": "https://huggingface.co/t5-base/resolve/main/tokenizer.json",
-        "t5-large": "https://huggingface.co/t5-large/resolve/main/tokenizer.json",
-        "t5-3b": "https://huggingface.co/t5-3b/resolve/main/tokenizer.json",
-        "t5-11b": "https://huggingface.co/t5-11b/resolve/main/tokenizer.json",
+        "mt5-small": "https://huggingface.co/mt5-small/resolve/main/tokenizer.json",
+        "mt5-base": "https://huggingface.co/mt5-base/resolve/main/tokenizer.json",
+        "mt5-large": "https://huggingface.co/mt5-large/resolve/main/tokenizer.json",
+        "mt5-xl": "https://huggingface.co/mt5-xl/resolve/main/tokenizer.json",
+        "mt5-xxl": "https://huggingface.co/mt5-xxl/resolve/main/tokenizer.json",
     },
 }
+# Can't find the files for *tokenizer.json for the above links
 
 
 # TODO(PVP) - this should be removed in Transformers v5
 PRETRAINED_POSITIONAL_EMBEDDINGS_SIZES = {
-    "t5-small": 512,
-    "t5-base": 512,
-    "t5-large": 512,
-    "t5-3b": 512,
-    "t5-11b": 512,
+    "mt5-small": 512,
+    "mt5-base": 512,
+    "mt5-large": 512,
+    "mt5-3b": 512,
+    "mt5-11b": 512,
 }
 
 
-class T5TokenizerFast(PreTrainedTokenizerFast):
+class mT5TokenizerFast(PreTrainedTokenizerFast):
     """
-    Construct a "fast" T5 tokenizer (backed by HuggingFace's *tokenizers* library). Based on
+    Construct a "fast" mT5 tokenizer (backed by HuggingFace's *tokenizers* library). Based on
     [Unigram](https://huggingface.co/docs/tokenizers/python/latest/components.html?highlight=unigram#models).
 
     This tokenizer inherits from [`PreTrainedTokenizerFast`] which contains most of the main methods. Users should
@@ -102,7 +103,7 @@ class T5TokenizerFast(PreTrainedTokenizerFast):
     pretrained_vocab_files_map = PRETRAINED_VOCAB_FILES_MAP
     max_model_input_sizes = PRETRAINED_POSITIONAL_EMBEDDINGS_SIZES
     model_input_names = ["input_ids", "attention_mask"]
-    slow_tokenizer_class = T5Tokenizer
+    slow_tokenizer_class = mT5Tokenizer
 
     prefix_tokens: List[int] = []
 
@@ -126,7 +127,7 @@ class T5TokenizerFast(PreTrainedTokenizerFast):
             if extra_tokens != extra_ids:
                 raise ValueError(
                     f"Both extra_ids ({extra_ids}) and additional_special_tokens ({additional_special_tokens}) are"
-                    " provided to T5Tokenizer. In this case the additional_special_tokens must include the extra_ids"
+                    " provided to mT5Tokenizer. In this case the additional_special_tokens must include the extra_ids"
                     " tokens"
                 )
 
@@ -146,9 +147,9 @@ class T5TokenizerFast(PreTrainedTokenizerFast):
         self._extra_ids = extra_ids
 
     @staticmethod
-    def _eventually_correct_t5_max_length(pretrained_model_name_or_path, max_model_length, init_max_model_length):
-        if pretrained_model_name_or_path in T5TokenizerFast.max_model_input_sizes:
-            deprecated_max_model_length = T5TokenizerFast.max_model_input_sizes[pretrained_model_name_or_path]
+    def _eventually_correct_mt5_max_length(pretrained_model_name_or_path, max_model_length, init_max_model_length):
+        if pretrained_model_name_or_path in mT5TokenizerFast.max_model_input_sizes:
+            deprecated_max_model_length = mT5TokenizerFast.max_model_input_sizes[pretrained_model_name_or_path]
             if init_max_model_length is not None and init_max_model_length != max_model_length:
                 return init_max_model_length
             elif init_max_model_length is None:
@@ -217,7 +218,7 @@ class T5TokenizerFast(PreTrainedTokenizerFast):
         self, token_ids_0: List[int], token_ids_1: Optional[List[int]] = None
     ) -> List[int]:
         """
-        Create a mask from the two sequences passed to be used in a sequence-pair classification task. T5 does not make
+        Create a mask from the two sequences passed to be used in a sequence-pair classification task. mT5 does not make
         use of token type ids, therefore a list of zeros is returned.
 
         Args:
