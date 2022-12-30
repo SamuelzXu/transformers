@@ -12,8 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" Tokenization class for model T5."""
-
+""" Tokenization class for model mT5."""
+# Copied from ../t5/tokenization_t5.py
 
 import os
 import re
@@ -33,28 +33,28 @@ VOCAB_FILES_NAMES = {"vocab_file": "spiece.model"}
 
 PRETRAINED_VOCAB_FILES_MAP = {
     "vocab_file": {
-        "t5-small": "https://huggingface.co/t5-small/resolve/main/spiece.model",
-        "t5-base": "https://huggingface.co/t5-base/resolve/main/spiece.model",
-        "t5-large": "https://huggingface.co/t5-large/resolve/main/spiece.model",
-        "t5-3b": "https://huggingface.co/t5-3b/resolve/main/spiece.model",
-        "t5-11b": "https://huggingface.co/t5-11b/resolve/main/spiece.model",
+        "mt5-small": "https://huggingface.co/mt5-small/resolve/main/spiece.model",
+        "mt5-base": "https://huggingface.co/mt5-base/resolve/main/spiece.model",
+        "mt5-large": "https://huggingface.co/mt5-large/resolve/main/spiece.model",
+        "mt5-xl": "https://huggingface.co/mt5-xl/resolve/main/spiece.model",
+        "mt5-xxl": "https://huggingface.co/mt5-xxl/resolve/main/spiece.model",
     }
 }
 
 
 # TODO(PVP) - this should be removed in Transformers v5
 PRETRAINED_POSITIONAL_EMBEDDINGS_SIZES = {
-    "t5-small": 512,
-    "t5-base": 512,
-    "t5-large": 512,
-    "t5-3b": 512,
-    "t5-11b": 512,
+    "mt5-small": 512,
+    "mt5-base": 512,
+    "mt5-large": 512,
+    "mt5-xl": 512,
+    "mt5-xxl": 512,
 }
 
 
-class T5Tokenizer(PreTrainedTokenizer):
+class mT5Tokenizer(PreTrainedTokenizer):
     """
-    Construct a T5 tokenizer. Based on [SentencePiece](https://github.com/google/sentencepiece).
+    Construct an mT5 tokenizer. Based on [SentencePiece](https://github.com/google/sentencepiece).
 
     This tokenizer inherits from [`PreTrainedTokenizer`] which contains most of the main methods. Users should refer to
     this superclass for more information regarding those methods.
@@ -131,7 +131,7 @@ class T5Tokenizer(PreTrainedTokenizer):
             if extra_tokens != extra_ids:
                 raise ValueError(
                     f"Both extra_ids ({extra_ids}) and additional_special_tokens ({additional_special_tokens}) are"
-                    " provided to T5Tokenizer. In this case the additional_special_tokens must include the extra_ids"
+                    " provided to mT5Tokenizer. In this case the additional_special_tokens must include the extra_ids"
                     " tokens"
                 )
 
@@ -154,9 +154,9 @@ class T5Tokenizer(PreTrainedTokenizer):
         self.sp_model.Load(vocab_file)
 
     @staticmethod
-    def _eventually_correct_t5_max_length(pretrained_model_name_or_path, max_model_length, init_max_model_length):
-        if pretrained_model_name_or_path in T5Tokenizer.max_model_input_sizes:
-            deprecated_max_model_length = T5Tokenizer.max_model_input_sizes[pretrained_model_name_or_path]
+    def _eventually_correct_mt5_max_length(pretrained_model_name_or_path, max_model_length, init_max_model_length):
+        if pretrained_model_name_or_path in mT5Tokenizer.max_model_input_sizes:
+            deprecated_max_model_length = mT5Tokenizer.max_model_input_sizes[pretrained_model_name_or_path]
             if init_max_model_length is not None and init_max_model_length != max_model_length:
                 return init_max_model_length
             elif init_max_model_length is None:
@@ -235,7 +235,7 @@ class T5Tokenizer(PreTrainedTokenizer):
         self, token_ids_0: List[int], token_ids_1: Optional[List[int]] = None
     ) -> List[int]:
         """
-        Create a mask from the two sequences passed to be used in a sequence-pair classification task. T5 does not make
+        Create a mask from the two sequences passed to be used in a sequence-pair classification task. mT5 does not make
         use of token type ids, therefore a list of zeros is returned.
 
         Args:
